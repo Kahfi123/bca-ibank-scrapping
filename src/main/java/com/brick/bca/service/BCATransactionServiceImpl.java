@@ -36,7 +36,7 @@ public class BCATransactionServiceImpl implements TransactionService {
     private String password;
     private Jedis getJedis() {
         Jedis jedis = jedisPool.getResource();
-        jedis.auth(password);
+        //jedis.auth(password);
         return jedis;
     }
     Logger log = LoggerFactory.getLogger(BCATransactionServiceImpl.class);
