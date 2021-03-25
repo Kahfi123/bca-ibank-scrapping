@@ -47,7 +47,7 @@ public class BCATransactionServiceImpl implements TransactionService {
         LocalDate endDate = LocalDate.now();
         LocalDate startDate = endDate.minusDays(31); //BCA Only allow last 31 days transactions
         Document transactionDocument = getAccountStatement(cookies, startDate,endDate);
-        CsvHelper.saveDataToCSV(transactionDocument);
+        //CsvHelper.saveDataToCSV(transactionDocument);
     }
 
     private Document getAccountStatement(Map<String, String> cookies, LocalDate startDate, LocalDate endDate) {
