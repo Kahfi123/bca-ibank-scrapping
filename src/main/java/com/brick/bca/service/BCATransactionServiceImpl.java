@@ -29,8 +29,6 @@ import static com.brick.bca.mapper.DataMapper.loginRequestMapper;
 
 @Service
 public class BCATransactionServiceImpl implements TransactionService {
-    @Value("${spring.redis.password}")
-    private String password;
     private JedisCluster getJedis() {
         Set<HostAndPort> jedisClusterNodes = new HashSet<HostAndPort>();
 //Jedis Cluster will attempt to discover cluster nodes automatically
