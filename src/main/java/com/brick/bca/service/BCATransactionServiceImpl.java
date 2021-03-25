@@ -13,15 +13,14 @@ import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.web.server.ResponseStatusException;
+import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPool;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static com.brick.bca.helper.StaticVariableHelper.COOKIE_KEY;
 import static com.brick.bca.helper.URLHelper.*;
@@ -30,14 +29,13 @@ import static com.brick.bca.mapper.DataMapper.loginRequestMapper;
 
 @Service
 public class BCATransactionServiceImpl implements TransactionService {
-    @Autowired
-    private JedisPool jedisPool;
     @Value("${spring.redis.password}")
     private String password;
-    private Jedis getJedis() {
-        Jedis jedis = jedisPool.getResource();
-        //jedis.auth(password);
-        return jedis;
+    private JedisCluster getJedis() {
+        Set<HostAndPort> jedisClusterNodes = new HashSet<HostAndPort>();
+//Jedis Cluster will attempt to discover cluster nodes automatically
+        jedisClusterNodes.add(new HostAndPort("redis-cluster", 6379));
+        return new JedisCluster(jedisClusterNodes);
     }
     Logger log = LoggerFactory.getLogger(BCATransactionServiceImpl.class);
     @Override
@@ -47,7 +45,7 @@ public class BCATransactionServiceImpl implements TransactionService {
         LocalDate endDate = LocalDate.now();
         LocalDate startDate = endDate.minusDays(31); //BCA Only allow last 31 days transactions
         Document transactionDocument = getAccountStatement(cookies, startDate,endDate);
-        //CsvHelper.saveDataToCSV(transactionDocument);
+        CsvHelper.saveDataToCSV(transactionDocument);
     }
 
     private Document getAccountStatement(Map<String, String> cookies, LocalDate startDate, LocalDate endDate) {
@@ -73,10 +71,10 @@ public class BCATransactionServiceImpl implements TransactionService {
 
     private Map<String, String> login(UserRequest userRequest) {
         log.info("login with user_id: {}",userRequest.getUserId());
-        Jedis jedis = getJedis();
+        JedisCluster jedis = getJedis();
         String userCookieKey = userRequest.getUserId()+"-"+COOKIE_KEY;
         log.info("checking in redis if session with user_id: {} already exists",userRequest.getUserId());
-        if(jedis.exists(userCookieKey)){
+        if(getJedis().exists(userCookieKey)){
             log.info("session with user_id: {} already exists in redis, returning session from redis",userRequest.getUserId());
             return getJedis().hgetAll(userCookieKey);
         }
