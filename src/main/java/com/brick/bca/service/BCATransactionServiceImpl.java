@@ -32,7 +32,7 @@ public class BCATransactionServiceImpl implements TransactionService {
     private JedisCluster getJedis() {
         Set<HostAndPort> jedisClusterNodes = new HashSet<HostAndPort>();
 //Jedis Cluster will attempt to discover cluster nodes automatically
-        jedisClusterNodes.add(new HostAndPort("redis-cluster", 6379));
+        jedisClusterNodes.add(new HostAndPort("redis-cluster.redis-cluster", 6379));
         return new JedisCluster(jedisClusterNodes);
     }
     Logger log = LoggerFactory.getLogger(BCATransactionServiceImpl.class);
