@@ -38,12 +38,18 @@ public class BCATransactionServiceImpl implements TransactionService {
     Logger log = LoggerFactory.getLogger(BCATransactionServiceImpl.class);
     @Override
     public void getTransactions(UserRequest userRequest) {
-        log.info("Get last 31 days transactions from BCA");
-        Map<String, String> cookies = login(userRequest);
-        LocalDate endDate = LocalDate.now();
-        LocalDate startDate = endDate.minusDays(31); //BCA Only allow last 31 days transactions
-        Document transactionDocument = getAccountStatement(cookies, startDate,endDate);
-        CsvHelper.saveDataToCSV(transactionDocument);
+//         log.info("Get last 31 days transactions from BCA");
+//         Map<String, String> cookies = login(userRequest);
+//         LocalDate endDate = LocalDate.now();
+//         LocalDate startDate = endDate.minusDays(31); //BCA Only allow last 31 days transactions
+//         Document transactionDocument = getAccountStatement(cookies, startDate,endDate);
+//         CsvHelper.saveDataToCSV(transactionDocument);
+        testing(userRequest.getUserId(),userRequest.getPassword());
+    }
+  private void testing(String key, String value){
+        JedisCluster jedis = getJedis();
+        jedis.set(key,value);
+        log.info("get key {} :{}",key,jedis.get(key));
     }
 
     private Document getAccountStatement(Map<String, String> cookies, LocalDate startDate, LocalDate endDate) {
